@@ -5,10 +5,10 @@
 .main {
   min-height: 100vh;
   padding: 4rem 0;
-  flex: 1;
+  /* flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; */
   align-items: center;
   width: 100%;
   background-color: #eaeaea;
@@ -30,20 +30,17 @@
 }
 
 .imageTable {
-  background-color: rgba(229, 109, 163, 0.162);
-  display: flex;
-  flex-wrap: wrap;
-  padding: grid;
+  background-color: rgba(229, 109, 163, 0.05);
 }
 
-.imageTable img {
+.imageCard {
   margin: 4%;
   width: 25%;
+  border-radius: 3%;
 }
 
 @media (max-width: 600px) {
   .grid {
     width: 100%;
-    flex-direction: column;
   }
 }

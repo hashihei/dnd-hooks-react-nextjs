@@ -1,7 +1,6 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import UseImageSortHooks from '../components/UseImageSortHooks'
+import UseImageSort from '../components/UseImageSort'
 
 export default function Home() {
   return (
@@ -16,7 +15,7 @@ export default function Home() {
         <h1 className={styles.title}>
           Welcome to Sample Application. 
         </h1>
-        <UseImageSortHooks></UseImageSortHooks>
+        <UseImageSort></UseImageSort>
       </main>
 
       <footer className={styles.footer}>
