@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import UseImageSort from '../components/UseImageSort'
+import DroppableArea from '../components/DroppableArea'
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
           Welcome to Sample Application. 
         </h1>
         <UseImageSort></UseImageSort>
+        <DroppableArea />
       </main>
 
       <footer className={styles.footer}>
