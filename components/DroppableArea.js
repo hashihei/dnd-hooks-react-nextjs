@@ -4,7 +4,7 @@ import styles from '../styles/DroppableArea.module.css';
 
 const DroppableArea = () => {
 
-    const [imgs, setImgs] = useState(["test.jpg"]);
+    const [imgs, setImgs] = useState([]);
 
     const onDrop = useCallback(acceptedFiles => {
         // Do someting with the files.
