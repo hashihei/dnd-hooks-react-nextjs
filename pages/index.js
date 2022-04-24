@@ -1,10 +1,11 @@
+import React from 'react'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import UseImageSort from '../components/UseImageSort'
-import DroppableArea from '../components/DroppableArea'
 import StoreProvider from '../store'
+import ImageSortMainArea from '../components/ImageSortMainArea'
 
 export default function Home() {
+
   return (
     <StoreProvider>
       <div className={styles.container}>
@@ -18,8 +19,7 @@ export default function Home() {
           <h1 className={styles.title}>
             Welcome to Sample Application. 
           </h1>
-          <UseImageSort></UseImageSort>
-          <DroppableArea />
+          <ImageSortMainArea />
         </main>
 
         <footer className={styles.footer}>
