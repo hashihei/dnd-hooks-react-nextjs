@@ -8,14 +8,16 @@ const DroppableArea = () => {
 
     const onDrop = useCallback(acceptedFiles => {
         let imgsJSONdata = globalState.images;
+        const initialDataLength = globalState.images.dataContainer.length;
 
         // Do someting with the files.
         acceptedFiles.map((file, index) => {
-            const imgIndex = globalState.images.length + index;
-            imgsJSONdata.push({imgsNo: imgIndex, imgsPath: '', imgsTEXT: '', imgsData: URL.createObjectURL(file)})
+            const imgIndex = String(initialDataLength + index);
+            imgsJSONdata.dataContainer.push({imgsNo: imgIndex, imgsPath: '', imgsTEXT: '', imgsData: URL.createObjectURL(file)})
+            imgsJSONdata.mainContainerList.push(imgIndex)
         });
 
-        setGlobalState({type: 'SET_IMAGES', payload: { images: imgsJSONdata }});
+        setGlobalState({type: 'SET_MAIN_IMAGES', payload: { images: imgsJSONdata }});
     }, [])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({onDrop})

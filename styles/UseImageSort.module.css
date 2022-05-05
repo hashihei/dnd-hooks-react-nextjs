@@ -1,7 +1,0 @@
-.sortableAreaContainer {
-    background-color: darkgray;
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
-}

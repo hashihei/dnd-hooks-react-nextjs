@@ -10,92 +10,196 @@ import {
 } from '@dnd-kit/core'
 import {
   arrayMove,
-  SortableContext,
-  rectSortingStrategy,
 } from '@dnd-kit/sortable'
 
-import {Grid} from './Grid';
-import {SortablePhoto} from './SortablePhoto';
-import {Photo} from './Photo';
-import styles from '../styles/UseImageSort.module.css';
-import { Store } from '../store/index'
+import { Item } from './sortable_item';
+import { Store } from '../store/index';
+import Container from './container';
+
+const wrapperStyle = {
+  width: "100%",
+  
+}
 
 const UseImageSort = () => {
 
   const { globalState, setGlobalState } = useContext(Store)
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState({
+    dataContainer: [],
+    topContainerList: [],
+    colorContainerList: [],
+    mainContainerList: [],
+    deleteContainerList: []
+  });
   const [activeId, setActiveId] = useState(null);
   const sensors = useSensors(
     useSensor(MouseSensor),
-     useSensor(TouchSensor));
+    useSensor(TouchSensor)
+  );
 
 
   useEffect(() => {
-    let newItems = [];
-
-    if (globalState.images.length > 0) {
-      globalState.images.map((item) => {
-        newItems.push(String(item.imgsNo))
-      });  
-    }
-    if (newItems.length > 0){
-      setItems(newItems);
-    } 
+    const newItems = { ...globalState.images };
+    setItems(newItems); 
   },[globalState]);
   
+
+  const defaultAnnouncements = {
+    onDragStart(id) {
+      console.log(`Picked up draggable item ${id}.`);
+    },
+    onDragOver(id, overId) {
+      if (overId) {
+        console.log(
+          `Draggable item ${id} was moved over droppable area ${overId}.`
+        );
+        return;
+      }
+  
+      console.log(`Draggable item ${id} is no longer over a droppable area.`);
+    },
+    onDragEnd(id, overId) {
+      if (overId) {
+        console.log(
+          `Draggable item ${id} was dropped over droppable area ${overId}`
+        );
+        return;
+      }
+  
+      console.log(`Draggable item ${id} was dropped.`);
+    },
+    onDragCancel(id) {
+      console.log(`Dragging was cancelled. Draggable item ${id} was dropped.`);
+    }
+  };
+  
   return (
-    <div className={styles.sortableAreaContainer}>
+    <div style={wrapperStyle}>
 
       <DndContext
+        announcements={defaultAnnouncements}
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
       >
-      <SortableContext items={items} strategy={rectSortingStrategy}>
-        <Grid columns={5}>
-          {items.map((url, index) => (
-            <SortablePhoto key={url} url={url} index={index} />
-          ))}
-        </Grid>
-      </SortableContext>
+        <Container id="topContainerList" itemLists={items.topContainerList}  />
+        <Container id="colorContainerList" itemLists={items.colorContainerList} />
+        <Container id="mainContainerList" itemLists={items.mainContainerList} />
+        <Container id="deleteContainerList" itemLists={items.deleteContainerList} />
 
-      <DragOverlay adjustScale={true}>
-        {activeId ? (
-          <Photo url={activeId} index={items.indexOf(activeId)} />
-        ) : null}
-      </DragOverlay>
+        <DragOverlay>
+          {activeId ? (
+            <Item id={activeId} />
+          ) : null}
+        </DragOverlay>
     </DndContext>
 
     </div>
   );
 
-  function handleDragStart(event){
-    setActiveId(event.active.id)
-  }
-
-  function handleDragEnd(event){
-    const {active, over} = event;
-
-    console.log("active:" + active.id + " over:" + over.id);
-
-    if(active.id !== over.id) {
-      let oldIndex;
-      let newIndex;
-      setItems((items) => {
-        oldIndex = items.indexOf(active.id);
-        newIndex = items.indexOf(over.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
-
-      setGlobalState({type: 'SET_IMAGES', payload: { images: arrayMove(globalState.images, oldIndex, newIndex) }});
-      setActiveId(null);
+  function findContainer(id) {
+    if (id in items) {
+      return id;
     }
+
+    return Object.keys(items).find((key) => items[key].includes(id));
   }
 
-  function handleDragCancel(){
+  function handleDragStart(event) {
+    const { active } = event;
+    const { id } = active;
+
+    setActiveId(id);
+  }
+
+  function handleDragOver(event) {
+    const { active, over, draggingRect } = event;
+    const { id } = active;
+    const { id: overId } = over;
+    
+    // Find the containers
+    const activeContainer = findContainer(id);
+    const overContainer = findContainer(overId);
+
+    if (
+      !activeContainer ||
+      !overContainer ||
+      activeContainer === overContainer
+    ) {
+      return;
+    }
+
+    setItems((prev) => {
+      const activeItems = prev[activeContainer];
+      const overItems = prev[overContainer];
+
+      // Find the indexes for the items
+      const activeIndex = activeItems.indexOf(id);
+      const overIndex = overItems.indexOf(overId);
+
+      let newIndex;
+      if (overId in prev) {
+        // We're at the root droppable of a container
+        newIndex = overItems.length + 1;
+      } else {
+        const isBelowLastItem =
+          over &&
+          draggingRect &&
+          overIndex === overItems.length - 1 &&
+          draggingRect.offsetTop > over.rect.offsetTop + over.rect.height;
+
+        const modifier = isBelowLastItem ? 1 : 0;
+
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+      }
+
+      return {
+        ...prev,
+        [activeContainer]: [
+          ...prev[activeContainer].filter((item) => item !== active.id)
+        ],
+        [overContainer]: [
+          ...prev[overContainer].slice(0, newIndex),
+          items[activeContainer][activeIndex],
+          ...prev[overContainer].slice(newIndex, prev[overContainer].length)
+        ]
+      };
+    });
+    setGlobalState({type: 'SET_IMAGES', payload: { images: items }});
+  }
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    const { id } = active;
+    const { id: overId } = over;
+
+    const activeContainer = findContainer(id);
+    const overContainer = findContainer(overId);
+
+    console.log("overID: " + overId)
+    console.log("active:" + activeContainer + " over: " + overContainer);
+
+    if (
+      !activeContainer ||
+      !overContainer ||
+      activeContainer !== overContainer
+    ) {
+      return;
+    }
+
+    const activeIndex = items[activeContainer].indexOf(active.id);
+    const overIndex = items[overContainer].indexOf(overId);
+
+    if (activeIndex !== overIndex) {
+      setItems((items) => ({
+        ...items,
+        [overContainer]: arrayMove(items[overContainer], activeIndex, overIndex)
+      }));
+      setGlobalState({type: 'SET_IMAGES', payload: { images: items }});
+    }
+
     setActiveId(null);
   }
 
