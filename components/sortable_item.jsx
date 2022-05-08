@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext } from 'react';
+import React, { useContext } from 'react';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Store } from '../store/index';
@@ -10,21 +10,16 @@ export const Item = (props) => {
   const inlineStyles = {
       opacity: '1',
       transformOrigin: '0 0',
-      // width: "100%",
       height: "150px",
-      //backgroundImage: `url(${globalState.images.dataContainer[props.id].imgsData})`,
       backgroundSize: '100%',
-      backgroundPosition: 'center',
-      backgroundColor: 'grey',
+      backgroundPosition: 'center'
   };
 
   if(typeof globalState.images.dataContainer[props.id] === 'undefined'){
     return <></>
   }else{
-    return  <img id={props.id} style={inlineStyles} src={globalState.images.dataContainer[props.id].imgsData} />
-
+    return <img id={props.id} style={inlineStyles} src={globalState.images.dataContainer[props.id].imgsData} />
   }
-  
 };
 
 

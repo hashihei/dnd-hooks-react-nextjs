@@ -10,6 +10,7 @@ import {
 } from '@dnd-kit/core'
 import {
   arrayMove,
+  useSortable
 } from '@dnd-kit/sortable'
 
 import { Item } from './sortable_item';
@@ -19,7 +20,7 @@ import Container from './container';
 const wrapperStyle = {
   width: "100%",
   
-}
+};
 
 const UseImageSort = () => {
 
@@ -37,7 +38,6 @@ const UseImageSort = () => {
     useSensor(TouchSensor)
   );
 
-
   useEffect(() => {
     const newItems = { ...globalState.images };
     setItems(newItems); 
@@ -46,56 +46,57 @@ const UseImageSort = () => {
 
   const defaultAnnouncements = {
     onDragStart(id) {
-      console.log(`Picked up draggable item ${id}.`);
+    //   console.log(`Picked up draggable item ${id}.`);
     },
     onDragOver(id, overId) {
-      if (overId) {
-        console.log(
-          `Draggable item ${id} was moved over droppable area ${overId}.`
-        );
+        if (overId) {
+        // console.log(
+        //   `Draggable item ${id} was moved over droppable area ${overId}.`
+        // );
         return;
-      }
-  
-      console.log(`Draggable item ${id} is no longer over a droppable area.`);
+        }
+
+    //   console.log(`Draggable item ${id} is no longer over a droppable area.`);
     },
     onDragEnd(id, overId) {
-      if (overId) {
-        console.log(
-          `Draggable item ${id} was dropped over droppable area ${overId}`
-        );
+        if (overId) {
+        // console.log(
+        //   `Draggable item ${id} was dropped over droppable area ${overId}`
+        // );
+        setGlobalState({type: 'SET_IMAGES', payload: { images: items }});
+        console.log("DragEnd-mainContainerList:" + globalState.images.mainContainerList)
         return;
-      }
-  
-      console.log(`Draggable item ${id} was dropped.`);
+        }
+
+    //   console.log(`Draggable item ${id} was dropped.`);
     },
     onDragCancel(id) {
-      console.log(`Dragging was cancelled. Draggable item ${id} was dropped.`);
+    //   console.log(`Dragging was cancelled. Draggable item ${id} was dropped.`);
     }
   };
-  
+
+
   return (
     <div style={wrapperStyle}>
+        <DndContext
+            announcements={defaultAnnouncements}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+        >
+            <Container id="topContainerList" itemLists={items.topContainerList}  />
+            <Container id="colorContainerList" itemLists={items.colorContainerList} />
+            <Container id="mainContainerList" itemLists={items.mainContainerList} />
+            <Container id="deleteContainerList" itemLists={items.deleteContainerList} />
 
-      <DndContext
-        announcements={defaultAnnouncements}
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <Container id="topContainerList" itemLists={items.topContainerList}  />
-        <Container id="colorContainerList" itemLists={items.colorContainerList} />
-        <Container id="mainContainerList" itemLists={items.mainContainerList} />
-        <Container id="deleteContainerList" itemLists={items.deleteContainerList} />
-
-        <DragOverlay>
-          {activeId ? (
-            <Item id={activeId} />
-          ) : null}
-        </DragOverlay>
-    </DndContext>
-
+            <DragOverlay>
+                {activeId ? (
+                <Item id={activeId} />
+                ) : null}
+            </DragOverlay>
+        </DndContext>
     </div>
   );
 
@@ -167,7 +168,6 @@ const UseImageSort = () => {
         ]
       };
     });
-    setGlobalState({type: 'SET_IMAGES', payload: { images: items }});
   }
 
   function handleDragEnd(event) {
@@ -177,9 +177,6 @@ const UseImageSort = () => {
 
     const activeContainer = findContainer(id);
     const overContainer = findContainer(overId);
-
-    console.log("overID: " + overId)
-    console.log("active:" + activeContainer + " over: " + overContainer);
 
     if (
       !activeContainer ||
@@ -193,16 +190,13 @@ const UseImageSort = () => {
     const overIndex = items[overContainer].indexOf(overId);
 
     if (activeIndex !== overIndex) {
-      setItems((items) => ({
-        ...items,
-        [overContainer]: arrayMove(items[overContainer], activeIndex, overIndex)
-      }));
-      setGlobalState({type: 'SET_IMAGES', payload: { images: items }});
+        setItems((items) => ({
+          ...items,
+          [overContainer]: arrayMove(items[overContainer], activeIndex, overIndex)
+        }));
     }
-
     setActiveId(null);
   }
-
 }
 
 export default UseImageSort

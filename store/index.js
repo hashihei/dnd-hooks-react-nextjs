@@ -1,7 +1,7 @@
 import React, { createContext, useReducer } from 'react'
 
 const droppableImageState = {
-    sku: '0000AA000000',
+    sku: '',
     images: {
         dataContainer: [],
         topContainerList: [],
@@ -13,7 +13,7 @@ const droppableImageState = {
 
 const reducer = (state, action) => {
     switch(action.type) {
-        case 'SET_MAIN_IMAGES':
+        case 'SET_IMAGES':
             return {...state, images: action.payload.images}
         case 'SET_SKU':
             return {...state, sku: action.payload.sku}

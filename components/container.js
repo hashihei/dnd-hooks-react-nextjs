@@ -8,7 +8,6 @@ import { Grid } from './Grid'
 import { SortableItem } from "./sortable_item";
 
 const containerStyle = {
-  background: "#dadada",
   padding: 10,
   margin: 10,
   flex: 1
@@ -17,10 +16,15 @@ const containerStyle = {
 const containerBackgroundStyle = {
   width: "100%",
   minHeight: "170px",
-  marginTop: "50px",
   marginBottom: "50px",
-  backgroundColor: "gray"
-}
+  backgroundColor: "#e3e3e3",
+  borderRadius: "15px",
+};
+
+const containerSubjectStyle = {
+  marginTop: "50px",
+  marginBottom: "10px",
+};
 
 export default function Container(props) {
   const { id, itemLists } = props;
@@ -33,9 +37,10 @@ export default function Container(props) {
     <SortableContext
       id={id}
       items={itemLists}
-      // strategy={rectSortingStrategy}  
       strategy={rectSortingStrategy}  
     >
+      {/* print container title */}
+      <div style={containerSubjectStyle}>{props.id}</div>
       <div ref={setNodeRef} style={containerBackgroundStyle}>
       {
         <Grid columns={5} style={containerStyle}>
